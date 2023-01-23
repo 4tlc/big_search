@@ -4,7 +4,7 @@ use std::fs::ReadDir;
 use std::io;
 use std::path::PathBuf;
 
-static mut MATCHED_FILES: Vec<PathBuf> = Vec::<PathBuf>::new();
+static mut MATCHED_FILES: Vec<String> = Vec::<String>::new();
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -16,7 +16,11 @@ fn main() {
     }
 
     let path: &str = args.get(1).unwrap();
-    let target: &str = args.get(2).unwrap();
+    let cleaned: String = args.get(2).unwrap().replace("\\n", "\n").into();
+    let t: Vec<&str> = cleaned.split(" ").collect();
+
+    println!("{:?}", t);
+    println!("{:?}", t.get(3).unwrap().len());
 
     if !std::path::Path::new(path).exists() {
         panic!("File given, {}, doesn't exist", path);
@@ -27,7 +31,7 @@ fn main() {
         Ok(_) => {
             loop_files(target, maybe_dir.unwrap());
         }
-        Err(_) => search_file(target, PathBuf::from(path)),
+        Err(_) => search_file_word(target, PathBuf::from(path)),
     }
     unsafe {
         println!("{:?}", MATCHED_FILES);
@@ -44,13 +48,13 @@ fn loop_files(target: &str, paths: ReadDir) -> () {
             }
             Err(_) => {
                 // this is a file
-                search_file(target, p);
+                search_file_word(target, p);
             }
         }
     }
 }
 
-fn search_file(target: &str, path: PathBuf) {
+fn search_file_word(target: &str, path: PathBuf) {
     let chars: Vec<char> = fs::read_to_string(&path).unwrap().chars().collect();
     let mut buffer: String = String::new();
     for char in chars {
@@ -59,39 +63,22 @@ fn search_file(target: &str, path: PathBuf) {
         }
         if char == ' ' {
             println!("{}", buffer);
-            if check_phrase(target, buffer.as_str()) {
-                unsafe {
-                    // MATCHED_FILES.push(
-                    //     path.into_os_string()
-                    //         .into_string()
-                    //         .unwrap()
-                    //         .as_str()
-                    //         .to_owned(),
-                    // );
-                    MATCHED_FILES.push(path);
-                    return;
-                }
+            if add_if_match(target, buffer.as_str(), &path) {
+                return;
             }
             buffer = String::new();
         }
         buffer.push(char);
     }
-    println!("{}", buffer);
-    if check_phrase(target, buffer.as_str()) {
-        //if match at end of file
-        unsafe {
-            // MATCHED_FILES.push(
-            //     path.into_os_string()
-            //         .into_string()
-            //         .unwrap()
-            //         .as_str()
-            //         .to_owned(),
-            // );
-            MATCHED_FILES.push(path);
-        }
-    }
+    add_if_match(target, buffer.as_str(), &path); // if there is match at end of file
 }
 
-fn check_phrase(target: &str, s: &str) -> bool {
-    target == s
+fn add_if_match(target: &str, buffer: &str, path: &PathBuf) -> bool {
+    if target == buffer {
+        unsafe {
+            MATCHED_FILES.push(path.display().to_string());
+        }
+        return true;
+    }
+    return false;
 }
