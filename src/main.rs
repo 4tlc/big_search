@@ -17,10 +17,9 @@ fn main() {
 
     let path: &str = args.get(1).unwrap();
     let cleaned: String = args.get(2).unwrap().replace("\\n", "\n").into();
-    let t: Vec<&str> = cleaned.split(" ").collect();
+    let target: &str = cleaned.as_str();
 
-    println!("{:?}", t);
-    println!("{:?}", t.get(3).unwrap().len());
+    println!("{:?}", target);
 
     if !std::path::Path::new(path).exists() {
         panic!("File given, {}, doesn't exist", path);
@@ -31,7 +30,7 @@ fn main() {
         Ok(_) => {
             loop_files(target, maybe_dir.unwrap());
         }
-        Err(_) => search_file_word(target, PathBuf::from(path)),
+        Err(_) => search_file(target, PathBuf::from(path)),
     }
     unsafe {
         println!("{:?}", MATCHED_FILES);
@@ -48,29 +47,48 @@ fn loop_files(target: &str, paths: ReadDir) -> () {
             }
             Err(_) => {
                 // this is a file
-                search_file_word(target, p);
+                search_file(target, p);
             }
         }
     }
 }
 
-fn search_file_word(target: &str, path: PathBuf) {
-    let chars: Vec<char> = fs::read_to_string(&path).unwrap().chars().collect();
-    let mut buffer: String = String::new();
+fn search_file(target: &str, path: PathBuf) {
+    // let chars: std::slice::Iter<'_, char> =
+    //     fs::read_to_string(&path).unwrap().chars().collect::<Vec<chars>().iter();
+    let chars: std::vec::IntoIter<char> = fs::read_to_string(&path)
+        .unwrap()
+        .chars()
+        .collect::<Vec<char>>()
+        .into_iter();
+
+    let mut window = String::new();
+    if chars.len() < target.len() {
+        return;
+    }
+
     for char in chars {
-        if char == '\n' {
+        if window.len() < target.len() {
+            window.push(char);
             continue;
         }
-        if char == ' ' {
-            println!("{}", buffer);
-            if add_if_match(target, buffer.as_str(), &path) {
-                return;
-            }
-            buffer = String::new();
-        }
-        buffer.push(char);
+        add_if_match(target, window.as_ref(), &path);
+        window.remove(0);
     }
-    add_if_match(target, buffer.as_str(), &path); // if there is match at end of file
+    // for char in chars {
+    //     if char == '\n' {
+    //         continue;
+    //     }
+    //     if char == ' ' {
+    //         println!("{}", buffer);
+    //         if add_if_match(target, buffer.as_str(), &path) {
+    //             return;
+    //         }
+    //         buffer = String::new();
+    //     }
+    //     buffer.push(char);
+    // }
+    // add_if_match(target, buffer.as_str(), &path); // if there is match at end of file
 }
 
 fn add_if_match(target: &str, buffer: &str, path: &PathBuf) -> bool {
