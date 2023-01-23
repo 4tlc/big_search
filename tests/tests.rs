@@ -1,17 +1,11 @@
-#![allow(unused)]
-#[path = "../src/parse_args.rs"]
-mod parse_args;
-use crate::parse_args::parse_args;
-#[path = "../src/search_files.rs"]
-mod search_files;
-use crate::search_files::{loop_files, search_file};
-#[path = "../src/main.rs"]
-mod main;
-use crate::main::MATCHED_FILES;
-use std::path::PathBuf;
+#![allow(unused)] // fix unused warnings printing on *cargo test*
 
-#[test]
-fn simple_cases() {
+fn main() {
+    one_word();
+    many_spaces();
+}
+
+fn one_word() {
     // first entry of args contains system info
     let (path, target, maybe_dir) = parse_args(vec![
         "_".to_string(),
@@ -30,6 +24,43 @@ fn simple_cases() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in2.txt")));
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/1in.txt")));
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/inner/2in.txt")));
-        assert_eq!(MATCHED_FILES.len(), 4 as usize);
+        assert!(MATCHED_FILES.contains(&"tests/tests.rs".to_string()));
+        assert_eq!(MATCHED_FILES.len(), 5 as usize);
+        MATCHED_FILES.clear();
+        println!("\x1b[36m------------------\x1b[0m");
+        println!("\x1b[32mOne Word\x1b[0m");
     }
 }
+
+fn many_spaces() {
+    let prefix: String = "tests/example/".to_string();
+    let (path, target, maybe_dir) = parse_args(vec![
+        "_".to_string(),
+        "tests".to_string(),
+        "this one has     5spaces".to_string(),
+    ]);
+    match maybe_dir {
+        Ok(_) => {
+            loop_files(&target, maybe_dir.unwrap());
+        }
+        Err(_) => search_file(&target, PathBuf::from(path)),
+    }
+    unsafe {
+        assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in2.txt")));
+        assert!(MATCHED_FILES.contains(&"tests/tests.rs".to_string()));
+        assert_eq!(MATCHED_FILES.len(), 2 as usize);
+        println!("\x1b[36m------------------\x1b[0m");
+        println!("\x1b[32mMatch With Many Spaces\x1b[0m");
+    }
+}
+
+#[path = "../src/parse_args.rs"]
+mod parse_args;
+use crate::parse_args::parse_args;
+#[path = "../src/search_files.rs"]
+mod search_files;
+use crate::search_files::{loop_files, search_file};
+#[path = "../src/main.rs"]
+mod main;
+use crate::main::MATCHED_FILES;
+use std::path::PathBuf;
