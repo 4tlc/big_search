@@ -1,22 +1,44 @@
+use std::env;
 use std::fs;
-use std::fs::{DirEntry, ReadDir};
+use std::fs::ReadDir;
+use std::io;
 
 fn main() {
-    let mut files: Vec<DirEntry> = Vec::<DirEntry>::new();
-    let paths: ReadDir = fs::read_dir("./").unwrap();
-    get_files(&mut files, paths);
-    println!("{}", files.len());
+    let args: Vec<String> = env::args().collect();
+    if args.len() == 1 {
+        panic!("No directory or file given");
+    }
+
+    let path: &str = args.get(1).unwrap();
+
+    if !std::path::Path::new(path).exists() {
+        panic!("File given, {}, doesn't exist", path);
+    }
+
+    let maybe_dir: io::Result<ReadDir> = fs::read_dir(path);
+    match maybe_dir {
+        Ok(_) => {
+            search_files(maybe_dir.unwrap());
+        }
+        Err(_) => search_file(path),
+    }
 }
 
-fn get_files(files: &mut Vec<DirEntry>, paths: ReadDir) -> () {
+fn search_file(path: &str) {
+    println!("{:?}", fs::read_to_string(path).unwrap());
+}
+
+fn search_files(paths: ReadDir) -> () {
     for path in paths {
-        let p = fs::read_dir(path.as_ref().unwrap().path());
-        match p {
+        let p = path.as_ref().unwrap().path();
+        let maybe_dir = fs::read_dir(&p);
+        match maybe_dir {
             Ok(_) => {
-                get_files(files, p.unwrap());
+                search_files(maybe_dir.unwrap());
             }
             Err(_) => {
-                files.push(path.unwrap());
+                // this is a file
+                println!("{:?}", fs::read_to_string(&p).unwrap());
             }
         }
     }
