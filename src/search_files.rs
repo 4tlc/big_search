@@ -42,6 +42,7 @@ pub fn search_file(target: &str, path: PathBuf) {
             return;
         }
         window.remove(0);
+        window.push(char);
     }
     // in case their is a match at the end of file
     add_if_match(target, window.as_ref(), &path);
