@@ -1,9 +1,44 @@
 #![allow(unused)] // fix unused warnings printing on *cargo test*
 
+#[path = "../src/parse_args.rs"]
+mod parse_args;
+use crate::parse_args::parse_args;
+#[path = "../src/search_files.rs"]
+mod search_files;
+use crate::search_files::{loop_files, search_file};
+#[path = "../src/main.rs"]
+mod main;
+use crate::main::MATCHED_FILES;
+use crate::main::SEARCHED_SIZE;
+use std::path::PathBuf;
+
 fn main() {
     one_word();
     many_spaces();
     many_lines();
+    embedded_string();
+}
+
+fn embedded_string() {
+    let (path, target, maybe_dir) = parse_args(vec![
+        "_".to_string(),
+        "tests".to_string(),
+        "print(\"this is a string\")\nprint('h')".to_string(),
+    ]);
+    match maybe_dir {
+        Ok(_) => {
+            loop_files(&target, maybe_dir.unwrap());
+        }
+        Err(_) => search_file(&target, PathBuf::from(path)),
+    }
+    let prefix: String = "tests/example/".to_string();
+    unsafe {
+        assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/with_quotes.py")));
+        assert_eq!(MATCHED_FILES.len(), 1 as usize);
+        MATCHED_FILES.clear();
+        println!("\x1b[36m------------------\x1b[0m");
+        println!("\x1b[32mSearch Quotes\x1b[0m");
+    }
 }
 
 fn many_lines() {
@@ -78,14 +113,3 @@ fn many_spaces() {
         println!("\x1b[32mMatch With Many Spaces\x1b[0m");
     }
 }
-
-#[path = "../src/parse_args.rs"]
-mod parse_args;
-use crate::parse_args::parse_args;
-#[path = "../src/search_files.rs"]
-mod search_files;
-use crate::search_files::{loop_files, search_file};
-#[path = "../src/main.rs"]
-mod main;
-use crate::main::MATCHED_FILES;
-use std::path::PathBuf;

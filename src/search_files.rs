@@ -1,4 +1,5 @@
-use crate::MATCHED_FILES;
+use super::MATCHED_FILES;
+use super::SEARCHED_SIZE;
 use std::fs;
 use std::fs::ReadDir;
 use std::path::PathBuf;
@@ -13,6 +14,9 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
             }
             Err(_) => {
                 // this is a file
+                unsafe {
+                    SEARCHED_SIZE += &p.metadata().unwrap().len();
+                }
                 search_file(target, p);
             }
         }
