@@ -3,6 +3,30 @@
 fn main() {
     one_word();
     many_spaces();
+    many_lines();
+}
+
+fn many_lines() {
+    // first entry of args contains system info
+    let (path, target, maybe_dir) = parse_args(vec![
+        "_".to_string(),
+        "tests".to_string(),
+        "this\nis\nmany\nlines\n".to_string(),
+    ]);
+    match maybe_dir {
+        Ok(_) => {
+            loop_files(&target, maybe_dir.unwrap());
+        }
+        Err(_) => search_file(&target, PathBuf::from(path)),
+    }
+    let prefix: String = "tests/example/".to_string();
+    unsafe {
+        assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "multy_line.txt")));
+        assert_eq!(MATCHED_FILES.len(), 1 as usize);
+        MATCHED_FILES.clear();
+        println!("\x1b[36m------------------\x1b[0m");
+        println!("\x1b[32mMany Lines\x1b[0m");
+    }
 }
 
 fn one_word() {
@@ -49,6 +73,7 @@ fn many_spaces() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in2.txt")));
         assert!(MATCHED_FILES.contains(&"tests/tests.rs".to_string()));
         assert_eq!(MATCHED_FILES.len(), 2 as usize);
+        MATCHED_FILES.clear();
         println!("\x1b[36m------------------\x1b[0m");
         println!("\x1b[32mMatch With Many Spaces\x1b[0m");
     }
