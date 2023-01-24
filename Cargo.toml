@@ -8,4 +8,8 @@ edition = "2021"
 name = "tests"
 harness = false
 
+[[bin]]
+name = "bs"
+path = "src/main.rs"
+
 [dependencies]
