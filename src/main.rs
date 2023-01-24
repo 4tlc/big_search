@@ -16,18 +16,18 @@ fn main() {
     let (path, target, maybe_dir) = parse_args(env::args().collect());
     let mut size: u64 = 0;
     match maybe_dir {
-        Ok(_) => ds(maybe_dir.unwrap()),
+        Ok(_) => search_size(PathBuf::from(&path)),
         Err(_) => unsafe { SIZE = fs::metadata(&path).unwrap().len() },
     };
-    size = dir_size(path).unwrap();
-    println!("{}", size);
+    // size = dir_size(path).unwrap();
+    // println!("{}", size);
     begin_status();
-    // match maybe_dir {
-    //     Ok(_) => {
-    //         loop_files(&target, maybe_dir.unwrap());
-    //     }
-    //     Err(_) => search_file(&target, PathBuf::from(path)),
-    // }
+    match maybe_dir {
+        Ok(_) => {
+            loop_files(&target, maybe_dir.unwrap());
+        }
+        Err(_) => search_file(&target, PathBuf::from(path)),
+    }
     unsafe {
         println!("{:?}", MATCHED_FILES);
         println!("Mine: {}", SIZE);
@@ -36,47 +36,21 @@ fn main() {
 
 fn begin_status() {}
 
-fn ds(paths: ReadDir) {
-    for path in paths {
-        let p: PathBuf = path.as_ref().unwrap().path();
-        let maybe_dir = fs::read_dir(&p);
-        match maybe_dir {
-            Ok(_) => {
-                ds(maybe_dir.unwrap());
+fn search_size(paths: PathBuf) {
+    fn ss(dir: fs::ReadDir) {
+        for path in dir {
+            let p: PathBuf = path.as_ref().unwrap().path();
+            let maybe_dir = fs::read_dir(&p);
+            match maybe_dir {
+                Ok(_) => {
+                    ss(maybe_dir.unwrap());
+                }
+                Err(_) => unsafe { SIZE += fs::metadata(p).unwrap().len() },
             }
-            Err(_) => unsafe { SIZE += fs::metadata(p).unwrap().len() },
         }
     }
+    ss(fs::read_dir(paths).unwrap());
 }
-
-// fn ds(mut size: u64, paths: ReadDir) -> u64 {
-//     println!("{}", size);
-//     for path in paths {
-//         let p: PathBuf = path.as_ref().unwrap().path();
-//         let maybe_dir = fs::read_dir(&p);
-//         match maybe_dir {
-//             Ok(_) => {
-//                 ds(size, maybe_dir.unwrap());
-//             }
-//             Err(_) => size += fs::metadata(p).unwrap().len(),
-//         }
-//     }
-
-//     size
-// }
-// fn ds(paths: ReadDir) -> u64 {
-//     fn ds(path: Result<DirEntry, std::io::Error>) -> u64 {
-//         let p: PathBuf = path.as_ref().unwrap().path();
-//         let maybe_dir = fs::read_dir(&p);
-//         match maybe_dir {
-//             Ok(_) => ds(maybe_dir),
-//             Err(_) => fs::metadata(p).unwrap().len(),
-//         }
-//     }
-//     for path in paths {
-//         ds(path)
-//     }
-// }
 
 // From: https://gitlab.com/users/Boiethios/projects | https://stackoverflow.com/questions/60041710/how-to-check-directory-size
 fn dir_size(path: impl Into<PathBuf>) -> io::Result<u64> {
@@ -90,6 +64,5 @@ fn dir_size(path: impl Into<PathBuf>) -> io::Result<u64> {
             Ok(acc + size)
         })
     }
-
     dir_size(fs::read_dir(path.into())?)
 }
