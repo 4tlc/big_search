@@ -10,12 +10,15 @@ use crate::search_files::{loop_files, search_file};
 mod main;
 use crate::main::MATCHED_FILES;
 use crate::main::SEARCHED_SIZE;
+use std::time::Instant;
 
 fn main() {
+    let timer = Instant::now();
     one_word();
     many_spaces();
     many_lines();
     embedded_string();
+    println!("\n[39mTime to test: {:?}\x1b", timer.elapsed());
 }
 
 fn embedded_string() {
@@ -35,8 +38,7 @@ fn embedded_string() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/with_quotes.py")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
-        println!("\x1b[36m------------------\x1b[0m");
-        println!("\x1b[32mSearch Quotes\x1b[0m");
+        print!("\x1b[36m|\x1b[32mSearch Quotes\x1b");
     }
 }
 
@@ -58,8 +60,7 @@ fn many_lines() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "multy_line.txt")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
-        println!("\x1b[36m------------------\x1b[0m");
-        println!("\x1b[32mMany Lines\x1b[0m");
+        print!("\x1b[36m|\x1b[32mMany Lines\x1b");
     }
 }
 
@@ -85,8 +86,7 @@ fn one_word() {
         assert!(MATCHED_FILES.contains(&"tests/tests.rs".to_string()));
         assert_eq!(MATCHED_FILES.len(), 5 as usize);
         MATCHED_FILES.clear();
-        println!("\x1b[36m------------------\x1b[0m");
-        println!("\x1b[32mOne Word\x1b[0m");
+        print!("\x1b[36m|\x1b[32mOne Word\x1b[0m");
     }
 }
 
@@ -108,7 +108,6 @@ fn many_spaces() {
         assert!(MATCHED_FILES.contains(&"tests/tests.rs".to_string()));
         assert_eq!(MATCHED_FILES.len(), 2 as usize);
         MATCHED_FILES.clear();
-        println!("\x1b[36m------------------\x1b[0m");
-        println!("\x1b[32mMatch With Many Spaces\x1b[0m");
+        print!("\x1b[36m|\x1b[32mMatch With Many Spaces\x1b[0m");
     }
 }
