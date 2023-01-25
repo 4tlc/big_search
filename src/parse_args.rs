@@ -2,7 +2,7 @@ use std::fs;
 use std::fs::ReadDir;
 use std::io;
 
-pub fn parse_args(args: Vec<String>) -> (String, String, io::Result<ReadDir>) {
+pub fn parse_args(args: Vec<String>) -> (String, String) {
     if args.len() == 1 {
         panic!("No directory or file given");
     }
@@ -17,7 +17,5 @@ pub fn parse_args(args: Vec<String>) -> (String, String, io::Result<ReadDir>) {
         panic!("Location {}, doesn't exist", path);
     }
 
-    let maybe_dir: io::Result<ReadDir> = fs::read_dir(path);
-
-    (path.to_string(), target.to_string(), maybe_dir)
+    (path.to_string(), target.to_string())
 }
