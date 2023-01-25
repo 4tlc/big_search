@@ -1,4 +1,6 @@
-pub fn parse_args(args: Vec<String>) -> (String, String) {
+use std::path::PathBuf;
+
+pub fn parse_args(args: Vec<String>) -> (PathBuf, String) {
     if args.len() == 1 {
         panic!("No directory or file given");
     }
@@ -13,5 +15,5 @@ pub fn parse_args(args: Vec<String>) -> (String, String) {
         panic!("Location {}, doesn't exist", path);
     }
 
-    (path.to_string(), target.to_string())
+    (PathBuf::from(path), target.to_string())
 }
