@@ -1,7 +1,3 @@
-use std::fs;
-use std::fs::ReadDir;
-use std::io;
-
 pub fn parse_args(args: Vec<String>) -> (String, String) {
     if args.len() == 1 {
         panic!("No directory or file given");
