@@ -24,11 +24,12 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
 }
 
 pub fn search_file(target: &str, path: PathBuf) {
-    let chars: std::vec::IntoIter<char> = fs::read_to_string(&path)
-        .unwrap()
-        .chars()
-        .collect::<Vec<char>>()
-        .into_iter();
+    let chars = match fs::read_to_string(&path) {
+        //an error here would only occur when the files isn't utf8,
+        //meaning the text user searched isn't valid/they aren't searching this file so returning is valid
+        Ok(s) => s.chars().collect::<Vec<char>>().into_iter(),
+        Err(_) => return,
+    };
 
     // this will always be the length of the target
     // this will be checked against target
