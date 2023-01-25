@@ -13,6 +13,7 @@ fn main() {
     let (path, target): (PathBuf, String) = parse_args(std::env::args().collect());
     println!("Size: {}", search_size(&path));
     begin_status();
+    let time = std::time::Instant::now();
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -22,7 +23,9 @@ fn main() {
         }
     }
     unsafe {
-        println!("{:?}", MATCHED_FILES);
+        println!("Matched Files: {:?}", MATCHED_FILES);
+        println!("Number of Matched Files: {:?}", MATCHED_FILES.len());
+        println!("Time to search: {:?}", time.elapsed());
     };
 }
 
