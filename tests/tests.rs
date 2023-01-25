@@ -10,7 +10,6 @@ use crate::search_files::{loop_files, search_file};
 mod main;
 use crate::main::MATCHED_FILES;
 use crate::main::SEARCHED_SIZE;
-use std::path::PathBuf;
 
 fn main() {
     one_word();
@@ -20,16 +19,16 @@ fn main() {
 }
 
 fn embedded_string() {
-    let (path, target, maybe_dir) = parse_args(vec![
+    let (path, target) = parse_args(vec![
         "_".to_string(),
         "tests".to_string(),
         "print(\"this is a string\")\nprint('h')".to_string(),
     ]);
-    match maybe_dir {
-        Ok(_) => {
-            loop_files(&target, maybe_dir.unwrap());
+    match std::fs::read_dir(&path) {
+        Ok(dir) => {
+            loop_files(&target, dir);
         }
-        Err(_) => search_file(&target, PathBuf::from(path)),
+        Err(_) => search_file(&target, path),
     }
     let prefix: String = "tests/example/".to_string();
     unsafe {
@@ -43,16 +42,16 @@ fn embedded_string() {
 
 fn many_lines() {
     // first entry of args contains system info
-    let (path, target, maybe_dir) = parse_args(vec![
+    let (path, target) = parse_args(vec![
         "_".to_string(),
         "tests".to_string(),
         "this\nis\nmany\nlines\n".to_string(),
     ]);
-    match maybe_dir {
-        Ok(_) => {
-            loop_files(&target, maybe_dir.unwrap());
+    match std::fs::read_dir(&path) {
+        Ok(dir) => {
+            loop_files(&target, dir);
         }
-        Err(_) => search_file(&target, PathBuf::from(path)),
+        Err(_) => search_file(&target, path),
     }
     let prefix: String = "tests/example/".to_string();
     unsafe {
@@ -66,16 +65,16 @@ fn many_lines() {
 
 fn one_word() {
     // first entry of args contains system info
-    let (path, target, maybe_dir) = parse_args(vec![
+    let (path, target) = parse_args(vec![
         "_".to_string(),
         "tests".to_string(),
         "all".to_string(),
     ]);
-    match maybe_dir {
-        Ok(_) => {
-            loop_files(&target, maybe_dir.unwrap());
+    match std::fs::read_dir(&path) {
+        Ok(dir) => {
+            loop_files(&target, dir);
         }
-        Err(_) => search_file(&target, PathBuf::from(path)),
+        Err(_) => search_file(&target, path),
     }
     let prefix: String = "tests/example/".to_string();
     unsafe {
@@ -93,16 +92,16 @@ fn one_word() {
 
 fn many_spaces() {
     let prefix: String = "tests/example/".to_string();
-    let (path, target, maybe_dir) = parse_args(vec![
+    let (path, target) = parse_args(vec![
         "_".to_string(),
         "tests".to_string(),
         "this one has     5spaces".to_string(),
     ]);
-    match maybe_dir {
-        Ok(_) => {
-            loop_files(&target, maybe_dir.unwrap());
+    match std::fs::read_dir(&path) {
+        Ok(dir) => {
+            loop_files(&target, dir);
         }
-        Err(_) => search_file(&target, PathBuf::from(path)),
+        Err(_) => search_file(&target, path),
     }
     unsafe {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in2.txt")));
