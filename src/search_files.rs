@@ -16,12 +16,14 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
                 loop_files(target, maybe_dir.unwrap());
             }
             Err(_) => {
-                // this is a file
                 unsafe {
                     SEARCHED_SIZE += &p.metadata().unwrap().len();
-                    print!("\rProcessing {}%", (SEARCHED_SIZE * 100) / (TOTAL_SIZE));
-                    stdout.flush().unwrap();
+                    if TOTAL_SIZE != 0 {
+                        print!("\rProcessing {}%", (SEARCHED_SIZE * 100) / (TOTAL_SIZE));
+                        stdout.flush().unwrap();
+                    }
                 }
+                // this is a file
                 search_file(target, p);
             }
         }
