@@ -10,6 +10,7 @@ use crate::search_files::{loop_files, search_file};
 mod main;
 use crate::main::MATCHED_FILES;
 use crate::main::SEARCHED_SIZE;
+use crate::main::TOTAL_SIZE;
 use std::time::Instant;
 
 fn main() {
@@ -58,7 +59,6 @@ fn many_lines() {
     let prefix: String = "tests/example/".to_string();
     unsafe {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "multy_line.txt")));
-        println!("{:?}", MATCHED_FILES);
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
         print!("\x1b[36m|\x1b[32mMany Lines\x1b");

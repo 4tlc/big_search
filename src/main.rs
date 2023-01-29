@@ -5,28 +5,38 @@ use parse_args::parse_args;
 mod file_size;
 use file_size::search_size;
 use std::path::PathBuf;
+use std::str;
 
 pub static mut MATCHED_FILES: Vec<String> = Vec::<String>::new();
+pub static mut TOTAL_SIZE: u64 = 0;
 pub static mut SEARCHED_SIZE: u64 = 0;
 
 fn main() {
     let (path, target): (PathBuf, String) = parse_args(std::env::args().collect());
-    println!("Size: {}", search_size(&path));
-    begin_status();
+    let size: u64 = search_size(&path);
+    unsafe { TOTAL_SIZE = size };
+    let format_size = size
+        .to_string()
+        .as_bytes()
+        .rchunks(3)
+        .rev()
+        .map(str::from_utf8)
+        .collect::<Result<Vec<&str>, _>>()
+        .unwrap()
+        .join(",");
+    println!("Size (in bytes): {}", format_size);
     let time = std::time::Instant::now();
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
+            println!();
         }
         Err(_) => {
             search_file(&target, path);
         }
     }
     unsafe {
-        println!("Matched Files: {:?}", MATCHED_FILES);
         println!("Number of Matched Files: {:?}", MATCHED_FILES.len());
         println!("Time to search: {:?}", time.elapsed());
     };
 }
-
-fn begin_status() {}

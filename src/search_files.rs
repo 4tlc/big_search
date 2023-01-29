@@ -1,10 +1,13 @@
 use super::MATCHED_FILES;
 use super::SEARCHED_SIZE;
+use super::TOTAL_SIZE;
 use std::fs;
 use std::fs::ReadDir;
+use std::io::{stdout, Write};
 use std::path::PathBuf;
 
 pub fn loop_files(target: &str, paths: ReadDir) -> () {
+    let mut stdout = stdout();
     for path in paths {
         let p: PathBuf = path.as_ref().unwrap().path();
         let maybe_dir = fs::read_dir(&p);
@@ -16,6 +19,8 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
                 // this is a file
                 unsafe {
                     SEARCHED_SIZE += &p.metadata().unwrap().len();
+                    print!("\rProcessing {}%", (SEARCHED_SIZE * 100) / (TOTAL_SIZE));
+                    stdout.flush().unwrap();
                 }
                 search_file(target, p);
             }
