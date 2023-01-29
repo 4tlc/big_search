@@ -25,18 +25,15 @@ fn main() {
         .unwrap()
         .join(",");
     println!("Size (in bytes): {}", format_size);
-    let time = std::time::Instant::now();
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
-            println!();
         }
         Err(_) => {
             search_file(&target, path);
         }
     }
     unsafe {
-        println!("Number of Matched Files: {:?}", MATCHED_FILES.len());
-        println!("Time to search: {:?}", time.elapsed());
+        println!(" | Number of Matched Files: {:?}", MATCHED_FILES.len());
     };
 }

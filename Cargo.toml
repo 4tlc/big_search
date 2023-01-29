@@ -8,6 +8,10 @@ edition = "2021"
 name = "tests"
 harness = false
 
+[[bench]]
+name = "bench"
+harness = false
+
 [[bin]]
 name = "bs"
 path = "src/main.rs"
