@@ -19,13 +19,14 @@ fn main() {
     many_spaces();
     many_lines();
     embedded_string();
-    println!("\n[39mTime to test: {:?}\x1b", timer.elapsed());
+    zero_bytes();
+    println!("\n\x1b[39mTime to test: {:?}\x1b", timer.elapsed());
 }
 
 fn embedded_string() {
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests".to_string(),
+        "tests/example".to_string(),
         "print(\"this is a string\")\nprint('h')".to_string(),
     ]);
     match std::fs::read_dir(&path) {
@@ -108,5 +109,24 @@ fn many_spaces() {
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
         print!("\x1b[36m|\x1b[32mMatch With Many Spaces\x1b[0m");
+    }
+}
+
+// ensure passing a file/folder of zero bytes doesn't cause errors
+fn zero_bytes() {
+    let (path, target) = parse_args(vec![
+        "_".to_string(),
+        "tests/zero_bytes".to_string(),
+        "this one has     5spaces".to_string(),
+    ]);
+    match std::fs::read_dir(&path) {
+        Ok(dir) => {
+            loop_files(&target, dir);
+        }
+        Err(_) => search_file(&target, path),
+    }
+    unsafe {
+        MATCHED_FILES.clear();
+        print!("\x1b[36m|\x1b[32mWorked on Zero Byte Folder/File\x1b[0m");
     }
 }
