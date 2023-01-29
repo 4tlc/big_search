@@ -2,3 +2,4 @@
 .DS_Store 
 /tests/personal_website_src/
 /tests/mushroom_driver_scripts/
+/tests/personal_website_node_modules
