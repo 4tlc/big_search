@@ -13,6 +13,7 @@ pub static mut SEARCHED_SIZE: u64 = 0;
 
 fn main() {
     let (path, target): (PathBuf, String) = parse_args(std::env::args().collect());
+    println!("Gathering size of search...");
     let size: u64 = search_size(&path);
     unsafe { TOTAL_SIZE = size };
     let format_size = size
