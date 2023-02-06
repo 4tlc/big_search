@@ -26,7 +26,7 @@ fn main() {
 fn embedded_string() {
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests/example".to_string(),
+        "tests/to_search/example".to_string(),
         "print(\"this is a string\")\nprint('h')".to_string(),
     ]);
     match std::fs::read_dir(&path) {
@@ -35,7 +35,7 @@ fn embedded_string() {
         }
         Err(_) => search_file(&target, path),
     }
-    let prefix: String = "tests/example/".to_string();
+    let prefix: String = "tests/to_search/example/".to_string();
     unsafe {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/with_quotes.py")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
@@ -48,7 +48,7 @@ fn many_lines() {
     // first entry of args contains system info
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests/example".to_string(),
+        "tests/to_search/example".to_string(),
         "this\nis\nmany\nlines\n".to_string(),
     ]);
     match std::fs::read_dir(&path) {
@@ -57,7 +57,7 @@ fn many_lines() {
         }
         Err(_) => search_file(&target, path),
     }
-    let prefix: String = "tests/example/".to_string();
+    let prefix: String = "tests/to_search/example/".to_string();
     unsafe {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "multy_line.txt")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
@@ -70,7 +70,7 @@ fn one_word() {
     // first entry of args contains system info
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests/example".to_string(),
+        "tests/to_search/example".to_string(),
         "all".to_string(),
     ]);
     match std::fs::read_dir(&path) {
@@ -79,7 +79,7 @@ fn one_word() {
         }
         Err(_) => search_file(&target, path),
     }
-    let prefix: String = "tests/example/".to_string();
+    let prefix: String = "tests/to_search/example/".to_string();
     unsafe {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in.txt")));
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in2.txt")));
@@ -92,10 +92,10 @@ fn one_word() {
 }
 
 fn many_spaces() {
-    let prefix: String = "tests/example/".to_string();
+    let prefix: String = "tests/to_search/example/".to_string();
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests/example".to_string(),
+        "tests/to_search/example".to_string(),
         "this one has     5spaces".to_string(),
     ]);
     match std::fs::read_dir(&path) {
@@ -116,7 +116,7 @@ fn many_spaces() {
 fn zero_bytes() {
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests/zero_bytes".to_string(),
+        "tests/to_search/zero_bytes".to_string(),
         "this one has     5spaces".to_string(),
     ]);
     match std::fs::read_dir(&path) {

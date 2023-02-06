@@ -16,7 +16,6 @@ use crate::parse_args::parse_args;
 
 fn main() {
     // to print the number of files matched grep -l -r this .doc | wc -l
-    println!("grep");
     grep_personal_website_node_modules();
 }
 
@@ -25,7 +24,7 @@ fn grep_personal_website_node_modules() {
     let time = Instant::now();
     let (path, target) = parse_args(vec![
         "_".to_string(),
-        "tests/personal_website_node_modules".to_string(),
+        "benches/to_search/personal_website_node_modules".to_string(),
         "a".to_string(),
     ]);
 
@@ -33,7 +32,12 @@ fn grep_personal_website_node_modules() {
     println!("Time for bs: {:?}", time.elapsed());
     let time = Instant::now();
     let mut grep_cmd = Command::new("grep")
-        .args(["-l", "-r", "a", "tests/personal_website_node_modules"])
+        .args([
+            "-l",
+            "-r",
+            "a",
+            "benches/to_search/personal_website_node_modules",
+        ])
         .output()
         .expect("grep")
         .stdout;
