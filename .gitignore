@@ -1,4 +1,4 @@
 /target
 .DS_Store 
 # ignore large folders for benching
-/benches/to_search/*
+/benches/to_search/
