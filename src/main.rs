@@ -38,5 +38,8 @@ fn main() {
     }
     unsafe {
         println!("\nNumber of Matched Files: {:?}", MATCHED_FILES.len());
+        for path in MATCHED_FILES.iter() {
+            println!("{}", path);
+        }
     };
 }
