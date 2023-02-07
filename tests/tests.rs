@@ -11,6 +11,7 @@ mod main;
 use crate::main::MATCHED_FILES;
 use crate::main::SEARCHED_SIZE;
 use crate::main::TOTAL_SIZE;
+use std::path::PathBuf;
 use std::time::Instant;
 
 fn main() {
@@ -20,15 +21,18 @@ fn main() {
     many_lines();
     embedded_string();
     zero_bytes();
+    args_parsing();
     println!("\n\x1b[39mTime to test: {:?}\x1b", timer.elapsed());
 }
 
 fn embedded_string() {
-    let (path, target) = parse_args(vec![
+    let args = parse_args(vec![
         "_".to_string(),
         "tests/to_search/example".to_string(),
         "print(\"this is a string\")\nprint('h')".to_string(),
     ]);
+    let path = args.0;
+    let target = args.1;
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -46,11 +50,13 @@ fn embedded_string() {
 
 fn many_lines() {
     // first entry of args contains system info
-    let (path, target) = parse_args(vec![
+    let args = parse_args(vec![
         "_".to_string(),
         "tests/to_search/example".to_string(),
         "this\nis\nmany\nlines\n".to_string(),
     ]);
+    let path = args.0;
+    let target = args.1;
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -68,11 +74,13 @@ fn many_lines() {
 
 fn one_word() {
     // first entry of args contains system info
-    let (path, target) = parse_args(vec![
+    let args = parse_args(vec![
         "_".to_string(),
         "tests/to_search/example".to_string(),
         "all".to_string(),
     ]);
+    let path = args.0;
+    let target = args.1;
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -93,11 +101,13 @@ fn one_word() {
 
 fn many_spaces() {
     let prefix: String = "tests/to_search/example/".to_string();
-    let (path, target) = parse_args(vec![
+    let args = parse_args(vec![
         "_".to_string(),
         "tests/to_search/example".to_string(),
         "this one has     5spaces".to_string(),
     ]);
+    let path = args.0;
+    let target = args.1;
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -114,11 +124,13 @@ fn many_spaces() {
 
 // ensure passing a file/folder of zero bytes doesn't cause errors
 fn zero_bytes() {
-    let (path, target) = parse_args(vec![
+    let args = parse_args(vec![
         "_".to_string(),
         "tests/to_search/zero_bytes".to_string(),
         "this one has     5spaces".to_string(),
     ]);
+    let path = args.0;
+    let target = args.1;
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -129,4 +141,49 @@ fn zero_bytes() {
         MATCHED_FILES.clear();
         print!("\x1b[36m|\x1b[32mWorked on Zero Byte Folder/File\x1b[0m");
     }
+}
+
+#[should_panic]
+fn args_parsing() {
+    // check folders
+    let args = parse_args(vec![
+        "-n".to_string(),
+        "../".to_string(),
+        "this is target".to_string(),
+    ]);
+    assert_eq!(PathBuf::from("../"), args.0);
+    assert_eq!("this is target".to_string(), args.1);
+    // check flags
+    let args = parse_args(vec!["-n".to_string(), "_".to_string(), "_".to_string()]);
+    // assert that check_size is true as default
+    assert!(args.2);
+    let args = parse_args(vec![
+        "_".to_string(),
+        "-n".to_string(),
+        "_".to_string(),
+        "_".to_string(),
+    ]);
+    // assert that check_size is false
+    assert!(!args.2);
+    let args = parse_args(vec![
+        "_".to_string(),
+        "-n".to_string(),
+        "_".to_string(),
+        "_".to_string(),
+    ]);
+    // assert that check_size is false
+    assert!(!args.2);
+    unsafe {
+        MATCHED_FILES.clear();
+        print!("\x1b[36m|\x1b[32mParsed Arguments Correctly\x1b[0m");
+    }
+    // make sure panics happen when not giving enough arguments
+    let result = std::panic::catch_unwind(|| parse_args(vec!["_".to_string()]));
+    assert!(result.is_err());
+    let result = std::panic::catch_unwind(|| parse_args(vec!["_".to_string(), "-n".to_string()]));
+    assert!(result.is_err());
+    let result = std::panic::catch_unwind(|| {
+        parse_args(vec!["_".to_string(), "-n".to_string(), "t".to_string()])
+    });
+    assert!(result.is_err());
 }
