@@ -3,15 +3,17 @@
 Big Search is a command-line tool that searches all text in a given folder/file for a given target phrase, printing all files that contain the phrase.
 
 ### How to Use From Command Line
-##### Basic
+#### Basic
 ```
 bs path target
 ```
 Read as search *this* for *this*
+
 **Path:** Either a folder or file. If it is a folder all subdirectories will be searched (depth is unlimited).
+
 **Target:** Target phrase that is searched for. Use *\n* to indicate new line. The *\* and *n* can be seperate characters, *bs* will condense it to the new line character.
 
-##### Possible Flags
+#### Possible Flags
 **-n:** Do not calculate the size of the area to be searched. This doesn't change the results. The size of the area is only used to show how close to completion the algorithm is.
 
 ### ToDo
