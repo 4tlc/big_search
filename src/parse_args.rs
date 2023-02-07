@@ -21,14 +21,16 @@ pub fn parse_args(args: Vec<String>) -> (PathBuf, String, bool) {
                 match arg.chars().nth(1) {
                     Some('n') => calc_size = false,
                     Some(c) => {
-                        set_hook(Box::new(move |_info| {
+                        set_hook(Box::new(move |_| {
                             println!("Error: {} is not a valid flag", c);
                         }));
+                        panic!();
                     }
                     _ => {
                         set_hook(Box::new(|_info| {
                             println!("Error: No flag character given after '-'");
                         }));
+                        panic!();
                     }
                 }
             } else {
