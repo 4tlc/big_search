@@ -6,6 +6,7 @@ pub fn parse_args(args: Vec<String>) -> (PathBuf, String, bool) {
         set_hook(Box::new(|_info| {
             println!("Error: Either not given a search location or not given a target phrase");
         }));
+        panic!();
     }
 
     let first: &str = args.get(1).unwrap();
@@ -49,11 +50,15 @@ pub fn parse_args(args: Vec<String>) -> (PathBuf, String, bool) {
         set_hook(Box::new(|_info| {
             println!("Error: Either not given a search location or not given a target phrase");
         }));
+        panic!();
     }
 
-    (
-        PathBuf::from(path.unwrap()),
-        target.unwrap().to_string(),
-        calc_size,
-    )
+    let path = PathBuf::from(path.unwrap());
+    if !path.exists() {
+        set_hook(Box::new(move |_info| {
+            println!("Error: The Given path, {:?} doesn't exist", path);
+        }));
+        panic!();
+    }
+    (path, target.unwrap().to_string(), calc_size)
 }
