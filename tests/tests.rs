@@ -16,12 +16,12 @@ use std::time::Instant;
 
 fn main() {
     let timer = Instant::now();
+    args_parsing();
     one_word();
     many_spaces();
     many_lines();
     embedded_string();
     zero_bytes();
-    args_parsing();
     println!("\n\x1b[39mTime to test: {:?}\x1b", timer.elapsed());
 }
 
@@ -41,10 +41,10 @@ fn embedded_string() {
     }
     let prefix: String = "tests/to_search/example/".to_string();
     unsafe {
-        assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/with_quotes.py")));
+        assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/with_quotes.txt")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
-        print!("\x1b[36m|\x1b[32mSearch Quotes\x1b");
+        println!("\x1b[36m|\x1b[32mSearch Quotes\x1b");
     }
 }
 
@@ -68,7 +68,7 @@ fn many_lines() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "multy_line.txt")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
-        print!("\x1b[36m|\x1b[32mMany Lines\x1b");
+        println!("\x1b[36m|\x1b[32mMany Lines\x1b");
     }
 }
 
@@ -95,7 +95,7 @@ fn one_word() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "inner/inner/2in.txt")));
         assert_eq!(MATCHED_FILES.len(), 4 as usize);
         MATCHED_FILES.clear();
-        print!("\x1b[36m|\x1b[32mOne Word\x1b[0m");
+        println!("\x1b[36m|\x1b[32mOne Word\x1b[0m");
     }
 }
 
@@ -118,7 +118,7 @@ fn many_spaces() {
         assert!(MATCHED_FILES.contains(&(prefix.to_owned() + "in2.txt")));
         assert_eq!(MATCHED_FILES.len(), 1 as usize);
         MATCHED_FILES.clear();
-        print!("\x1b[36m|\x1b[32mMatch With Many Spaces\x1b[0m");
+        println!("\x1b[36m|\x1b[32mMatch With Many Spaces\x1b[0m");
     }
 }
 
@@ -139,7 +139,7 @@ fn zero_bytes() {
     }
     unsafe {
         MATCHED_FILES.clear();
-        print!("\x1b[36m|\x1b[32mWorked on Zero Byte Folder/File\x1b[0m");
+        println!("\x1b[36m|\x1b[32mWorked on Zero Byte Folder/File\x1b[0m");
     }
 }
 
@@ -154,13 +154,13 @@ fn args_parsing() {
     assert_eq!(PathBuf::from("../"), args.0);
     assert_eq!("this is target".to_string(), args.1);
     // check flags
-    let args = parse_args(vec!["-n".to_string(), "_".to_string(), "_".to_string()]);
+    let args = parse_args(vec!["_".to_string(), "tests".to_string(), "_".to_string()]);
     // assert that check_size is true as default
     assert!(args.2);
     let args = parse_args(vec![
         "_".to_string(),
         "-n".to_string(),
-        "_".to_string(),
+        "tests".to_string(),
         "_".to_string(),
     ]);
     // assert that check_size is false
@@ -168,22 +168,53 @@ fn args_parsing() {
     let args = parse_args(vec![
         "_".to_string(),
         "-n".to_string(),
-        "_".to_string(),
+        "tests".to_string(),
         "_".to_string(),
     ]);
     // assert that check_size is false
     assert!(!args.2);
+    // make sure panics happen when not giving enough arguments
+    assert!(std::panic::catch_unwind(|| parse_args(vec!["_".to_string()])).is_err());
+    assert!(
+        std::panic::catch_unwind(|| parse_args(vec!["_".to_string(), "-n".to_string()])).is_err()
+    );
+    assert!(std::panic::catch_unwind(|| {
+        parse_args(vec![
+            "_".to_string(),
+            "-n".to_string(),
+            "folder".to_string(),
+        ])
+    })
+    .is_err());
+    assert!(std::panic::catch_unwind(|| {
+        parse_args(vec![
+            "_".to_string(),
+            "-n".to_string(),
+            "folder".to_string(),
+        ])
+    })
+    .is_err());
+    assert!(std::panic::catch_unwind(|| {
+        parse_args(vec![
+            "_".to_string(),
+            "-n".to_string(),
+            "non_existent_folder".to_string(),
+            "target".to_string(),
+        ])
+    })
+    .is_err());
+    assert!(std::panic::catch_unwind(|| {
+        parse_args(vec![
+            "_".to_string(),
+            "-n".to_string(),
+            "-t".to_string(),
+            "folder".to_string(),
+            "target".to_string(),
+        ])
+    })
+    .is_err());
     unsafe {
         MATCHED_FILES.clear();
-        print!("\x1b[36m|\x1b[32mParsed Arguments Correctly\x1b[0m");
+        println!("\x1b[36m|\x1b[32mParsed Arguments Correctly\x1b[0m");
     }
-    // make sure panics happen when not giving enough arguments
-    let result = std::panic::catch_unwind(|| parse_args(vec!["_".to_string()]));
-    assert!(result.is_err());
-    let result = std::panic::catch_unwind(|| parse_args(vec!["_".to_string(), "-n".to_string()]));
-    assert!(result.is_err());
-    let result = std::panic::catch_unwind(|| {
-        parse_args(vec!["_".to_string(), "-n".to_string(), "t".to_string()])
-    });
-    assert!(result.is_err());
 }
