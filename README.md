@@ -17,6 +17,7 @@ Read as search *this* for *this*
 **-n:** Do not calculate the size of the area to be searched. This doesn't change the results. The size of the area is only used to show how close to completion the algorithm is.
 
 ### ToDo
+* [ ] Create error type instead of printing
 * [ ] Implement replace functionality
 * [ ] Add flags to ignore folders
 * [ ] Add flags to specify depth
