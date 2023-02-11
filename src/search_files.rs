@@ -17,8 +17,8 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
             }
             Err(_) => {
                 unsafe {
-                    SEARCHED_SIZE += &p.metadata().unwrap().len();
                     if TOTAL_SIZE != 0 {
+                        SEARCHED_SIZE += &p.metadata().unwrap().len();
                         print!("\rProcessing {}%", (SEARCHED_SIZE * 100) / (TOTAL_SIZE));
                         stdout.flush().unwrap();
                     }
