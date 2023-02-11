@@ -20,7 +20,6 @@ Read as search *this* for *this*
 * [ ] Implement replace functionality
 * [ ] Add flags to ignore folders
 * [ ] Add flags to specify depth
-* [ ] Rework errors so printed errors have no extra info from rust
 * [x] Create error type instead of printing
 * [x] Status tracker, shows searched and total
 * [x] Add flags to not compute size
