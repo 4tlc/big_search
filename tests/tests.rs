@@ -33,8 +33,15 @@ fn embedded_string() {
         "tests/to_search/example".to_string(),
         "print(\"this is a string\")\nprint('h')".to_string(),
     ]);
-    let path = args.0;
-    let target = args.1;
+    let path;
+    let target;
+    match args {
+        Ok(args) => {
+            path = args.0;
+            target = args.1;
+        }
+        Err(_) => panic!("threw error embedded string"),
+    }
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -57,8 +64,15 @@ fn many_lines() {
         "tests/to_search/example".to_string(),
         "this\nis\nmany\nlines\n".to_string(),
     ]);
-    let path = args.0;
-    let target = args.1;
+    let path;
+    let target;
+    match args {
+        Ok(args) => {
+            path = args.0;
+            target = args.1;
+        }
+        Err(_) => panic!("threw error many lines"),
+    }
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -81,8 +95,15 @@ fn one_word() {
         "tests/to_search/example".to_string(),
         "all".to_string(),
     ]);
-    let path = args.0;
-    let target = args.1;
+    let path;
+    let target;
+    match args {
+        Ok(args) => {
+            path = args.0;
+            target = args.1;
+        }
+        Err(_) => panic!("threw error one word"),
+    }
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -108,8 +129,15 @@ fn many_spaces() {
         "tests/to_search/example".to_string(),
         "this one has     5spaces".to_string(),
     ]);
-    let path = args.0;
-    let target = args.1;
+    let path;
+    let target;
+    match args {
+        Ok(args) => {
+            path = args.0;
+            target = args.1;
+        }
+        Err(_) => panic!("threw error many spaces"),
+    }
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -131,8 +159,15 @@ fn zero_bytes() {
         "tests/to_search/zero_bytes".to_string(),
         "this one has     5spaces".to_string(),
     ]);
-    let path = args.0;
-    let target = args.1;
+    let path;
+    let target;
+    match args {
+        Ok(args) => {
+            path = args.0;
+            target = args.1;
+        }
+        Err(_) => panic!("threw error zero bytes"),
+    }
     match std::fs::read_dir(&path) {
         Ok(dir) => {
             loop_files(&target, dir);
@@ -148,72 +183,74 @@ fn zero_bytes() {
 #[should_panic]
 fn args_parsing() {
     // check folders
-    let args = parse_args(vec![
+    if let Ok(args) = parse_args(vec![
         "-n".to_string(),
         "../".to_string(),
         "this is target".to_string(),
-    ]);
-    assert_eq!(PathBuf::from("../"), args.0);
-    assert_eq!("this is target".to_string(), args.1);
+    ]) {
+        assert_eq!(PathBuf::from("../"), args.0);
+        assert_eq!("this is target".to_string(), args.1);
+    } else {
+        panic!("returned error test 1");
+    }
     // check flags
-    let args = parse_args(vec!["_".to_string(), "tests".to_string(), "_".to_string()]);
+    if let Ok(args) = parse_args(vec!["_".to_string(), "tests".to_string(), "_".to_string()]) {
+        assert!(args.2);
+    } else {
+        panic!("returned error test 2");
+    }
     // assert that check_size is true as default
-    assert!(args.2);
-    let args = parse_args(vec![
+    if let Ok(args) = parse_args(vec![
         "_".to_string(),
         "-n".to_string(),
         "tests".to_string(),
         "_".to_string(),
-    ]);
+    ]) {
+        assert!(!args.2);
+    } else {
+        panic!("returned error test 3")
+    }
     // assert that check_size is false
-    assert!(!args.2);
-    let args = parse_args(vec![
+    if let Ok(args) = parse_args(vec![
         "_".to_string(),
         "-n".to_string(),
         "tests".to_string(),
         "_".to_string(),
-    ]);
+    ]) {
+        assert!(!args.2);
+    } else {
+        panic!("returned error test 4")
+    }
     // assert that check_size is false
-    assert!(!args.2);
     // make sure panics happen when not giving enough arguments
-    assert!(std::panic::catch_unwind(|| parse_args(vec!["_".to_string()])).is_err());
-    assert!(
-        std::panic::catch_unwind(|| parse_args(vec!["_".to_string(), "-n".to_string()])).is_err()
-    );
-    assert!(std::panic::catch_unwind(|| {
-        parse_args(vec![
-            "_".to_string(),
-            "-n".to_string(),
-            "folder".to_string(),
-        ])
-    })
+    assert!(parse_args(vec!["_".to_string()]).is_err());
+    assert!(parse_args(vec!["_".to_string(), "-n".to_string()]).is_err());
+    assert!(parse_args(vec![
+        "_".to_string(),
+        "-n".to_string(),
+        "folder".to_string(),
+    ])
     .is_err());
-    assert!(std::panic::catch_unwind(|| {
-        parse_args(vec![
-            "_".to_string(),
-            "-n".to_string(),
-            "folder".to_string(),
-        ])
-    })
+    assert!(parse_args(vec![
+        "_".to_string(),
+        "-n".to_string(),
+        "folder".to_string(),
+    ])
     .is_err());
-    assert!(std::panic::catch_unwind(|| {
-        parse_args(vec![
-            "_".to_string(),
-            "-n".to_string(),
-            "non_existent_folder".to_string(),
-            "target".to_string(),
-        ])
-    })
+    assert!(parse_args(vec![
+        "_".to_string(),
+        "-n".to_string(),
+        "non_existent_folder".to_string(),
+        "target".to_string(),
+    ])
     .is_err());
-    assert!(std::panic::catch_unwind(|| {
-        parse_args(vec![
-            "_".to_string(),
-            "-n".to_string(),
-            "-t".to_string(),
-            "folder".to_string(),
-            "target".to_string(),
-        ])
-    })
+    assert!(parse_args(vec![
+        "_".to_string(),
+        "-n".to_string(),
+        "-t".to_string(),
+        "folder".to_string(),
+        "target".to_string(),
+    ])
     .is_err());
     unsafe {
         MATCHED_FILES.clear();
