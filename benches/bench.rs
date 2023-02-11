@@ -7,6 +7,8 @@ mod main;
 use crate::main::MATCHED_FILES;
 use crate::main::SEARCHED_SIZE;
 use crate::main::TOTAL_SIZE;
+#[path = "../src/errors.rs"]
+mod errors;
 #[path = "../src/search_files.rs"]
 mod search_files;
 use crate::search_files::loop_files;
