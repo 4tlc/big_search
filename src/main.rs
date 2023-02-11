@@ -2,6 +2,7 @@ mod search_files;
 use search_files::{loop_files, search_file};
 mod parse_args;
 use parse_args::parse_args;
+mod errors;
 mod file_size;
 use file_size::search_size;
 use std::path::PathBuf;
@@ -12,7 +13,22 @@ pub static mut TOTAL_SIZE: u64 = 0;
 pub static mut SEARCHED_SIZE: u64 = 0;
 
 fn main() {
-    let (path, target, calc_size): (PathBuf, String, bool) = parse_args(std::env::args().collect());
+    let parsed = parse_args(std::env::args().collect());
+    let path: PathBuf;
+    let target: String;
+    let calc_size: bool;
+    match parsed {
+        Ok(p) => {
+            path = p.0;
+            target = p.1;
+            calc_size = p.2;
+        }
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
+    // let (path, target, calc_size): (PathBuf, String, bool) = parse_args(std::env::args().collect());
     if calc_size {
         println!("Gathering size of search...");
         let size: u64 = search_size(&path);
