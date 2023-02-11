@@ -6,6 +6,8 @@ use crate::parse_args::parse_args;
 #[path = "../src/search_files.rs"]
 mod search_files;
 use crate::search_files::{loop_files, search_file};
+#[path = "../src/errors.rs"]
+mod errors;
 #[path = "../src/main.rs"]
 mod main;
 use crate::main::MATCHED_FILES;
