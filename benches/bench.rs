@@ -32,23 +32,24 @@ fn main() {
 fn compare_grep(folder: &str, name: &str) {
     println!("\x1b[04\x1b[47mGrep Comparison on {}\x1b[0m", name);
     let time = Instant::now();
-    let path;
-    let target;
-    if let Ok(args) = parse_args(vec!["_".to_string(), folder.to_string(), "a".to_string()]) {
-        path = args.0;
-        target = args.1;
-    } else {
-        panic!("error thrown comparing grep")
-    }
+    // let path;
+    // let target;
+    // if let Ok(args) = parse_args(vec!["_".to_string(), folder.to_string(), "a".to_string()]) {
+    //     path = args.0;
+    //     target = args.1;
+    // } else {
+    //     panic!("error thrown comparing grep")
+    // }
 
-    loop_files(&target, std::fs::read_dir(path).unwrap());
+    // loop_files(&target, std::fs::read_dir(path).unwrap());
+    let bs_cmd = Command::new("target/debug/bs")
+        .args(["-n", folder, "a"])
+        .output();
     println!("Time for bs: {:?}", time.elapsed());
     let time = Instant::now();
     let mut grep_cmd = Command::new("grep")
         .args(["-l", "-r", "a", folder])
-        .output()
-        .expect("grep")
-        .stdout;
+        .output();
     // i think these are printing out line numbers of located files
     println!("Grep Time {:?}", time.elapsed());
 }
