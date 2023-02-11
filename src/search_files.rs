@@ -40,11 +40,10 @@ pub fn search_file(target: &str, path: PathBuf) {
 
     // this will always be the length of the target
     // this will be checked against target
-    let mut window = String::new();
     if chars.len() < target.len() {
         return;
     }
-
+    let mut window = String::new();
     for char in chars {
         if window.len() < target.len() {
             window.push(char);
@@ -53,15 +52,15 @@ pub fn search_file(target: &str, path: PathBuf) {
         if add_if_match(target, window.as_ref(), &path) {
             return;
         }
-        window.remove(0);
-        window.push(char);
+        window.remove(0); // remove first
+        window.push(char); // add last
     }
     // in case their is a match at the end of file
     add_if_match(target, window.as_ref(), &path);
 }
 
 fn add_if_match(target: &str, buffer: &str, path: &PathBuf) -> bool {
-    if target == buffer {
+    if target.eq(buffer) {
         unsafe {
             MATCHED_FILES.push(path.display().to_string());
         }
