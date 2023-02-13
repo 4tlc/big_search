@@ -33,14 +33,13 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
 pub fn search_file(target: &str, path: PathBuf) {
     let contents = fs::read_to_string(&path);
     match contents {
-        Ok(c) => {
-            if c.contains(&target) {
-                unsafe {
-                    MATCHED_FILES.push(path.display().to_string());
-                    return;
-                }
-            }
-        }
+        Ok(c) => match c.find(&target) {
+            Some(_) => unsafe {
+                MATCHED_FILES.push(path.display().to_string());
+                return;
+            },
+            None => return,
+        },
         Err(_) => return,
     }
     // berow will be used when implementing replace logic
