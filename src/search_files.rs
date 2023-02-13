@@ -31,40 +31,53 @@ pub fn loop_files(target: &str, paths: ReadDir) -> () {
 }
 
 pub fn search_file(target: &str, path: PathBuf) {
-    let chars = match fs::read_to_string(&path) {
-        //an error here would only occur when the files isn't utf8,
-        //meaning the text user searched isn't valid/they aren't searching this file so returning is valid
-        Ok(s) => s.chars().collect::<Vec<char>>().into_iter(),
+    let contents = fs::read_to_string(&path);
+    match contents {
+        Ok(c) => {
+            if c.contains(&target) {
+                unsafe {
+                    MATCHED_FILES.push(path.display().to_string());
+                    return;
+                }
+            }
+        }
         Err(_) => return,
-    };
+    }
+    // berow will be used when implementing replace logic
+    // let chars = match fs::read_to_string(&path) {
+    //     //an error here would only occur when the files isn't utf8,
+    //     //meaning the text user searched isn't valid/they aren't searching this file so returning is valid
+    //     Ok(s) => s.chars().collect::<Vec<char>>().into_iter(),
+    //     Err(_) => return,
+    // };
 
-    // this will always be the length of the target
-    // this will be checked against target
-    if chars.len() < target.len() {
-        return;
-    }
-    let mut window = String::new();
-    for char in chars {
-        if window.len() < target.len() {
-            window.push(char);
-            continue;
-        }
-        if add_if_match(target, window.as_ref(), &path) {
-            return;
-        }
-        window.remove(0); // remove first
-        window.push(char); // add last
-    }
-    // in case their is a match at the end of file
-    add_if_match(target, window.as_ref(), &path);
+    // // this will always be the length of the target
+    // // this will be checked against target
+    // if chars.len() < target.len() {
+    //     return;
+    // }
+    // let mut window = String::new();
+    // for char in chars {
+    //     if window.len() < target.len() {
+    //         window.push(char);
+    //         continue;
+    //     }
+    //     if add_if_match(target, window.as_ref(), &path) {
+    //         return;
+    //     }
+    //     window.remove(0); // remove first
+    //     window.push(char); // add last
+    // }
+    // // in case their is a match at the end of file
+    // add_if_match(target, window.as_ref(), &path);
 }
 
-fn add_if_match(target: &str, buffer: &str, path: &PathBuf) -> bool {
-    if target.eq(buffer) {
-        unsafe {
-            MATCHED_FILES.push(path.display().to_string());
-        }
-        return true;
-    }
-    return false;
-}
+// fn add_if_match(target: &str, buffer: &str, path: &PathBuf) -> bool {
+//     if target.eq(buffer) {
+//         unsafe {
+//             MATCHED_FILES.push(path.display().to_string());
+//         }
+//         return true;
+//     }
+//     return false;
+// }
