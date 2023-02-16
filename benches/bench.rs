@@ -33,6 +33,11 @@ fn main() {
         "Go Lang Source Code",
         "this shouldn't exist in any",
     );
+    compare_grep(
+        "benches/to_search/linux_master",
+        "Linux Kernel Source",
+        "this shouldn't exist in any",
+    );
 }
 
 // bench against grep on large node modules
