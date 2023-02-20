@@ -44,7 +44,7 @@ fn main() {
 fn compare_grep(folder: &str, name: &str, target: &str) {
     println!("\x1b[04\x1b[47mGrep Comparison on {}\x1b[0m", name);
     let time = Instant::now();
-    let bs_cmd = Command::new("target/debug/bs")
+    let bs_cmd = Command::new("target/release/bs")
         .args(["-n", folder, target])
         .output();
     println!("Time for bs: {:?}", time.elapsed());
