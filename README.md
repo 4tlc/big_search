@@ -1,4 +1,4 @@
-# Big Search
+## Big Search
 
 Big Search is a command-line tool that searches all text in a given folder/file for a given target phrase, printing all files that contain the phrase.
 
